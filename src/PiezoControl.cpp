@@ -12,6 +12,27 @@ int PSDCounter;
 int psdCalFlag;
 
 void PiezoControl::start_piezo_control(){
+
+
+    int X_offset = 23200;
+    int Y_offset = 14500;
+
+    // while(1){
+
+    //     std::cout << "Enter x-starting value?" << std::endl;
+    //     std::cin >> X_offset;
+
+    //     std::cout << "Enter y-starting value?" << std::endl;
+    //     std::cin >> Y_offset;
+
+    //     pc1.MoveTo(Y_offset);
+    //     pc2.MoveTo(X_offset);
+
+    // }
+    
+    pcy.MoveTo(Y_offset);
+    pcx.MoveTo(X_offset);
+
     float KpX = 0.0; // Proportional gain constant in x direction
     float KpY = 0.0; // Proportional gain constant in y direction
     float KdX = 0.0;
@@ -66,8 +87,10 @@ void PiezoControl::start_piezo_control(){
     //  timestamp
 
     // //Read piezo encoder positions
-    encoderY = pc1->GetPosition();
-    encoderX = pc2->GetPosition();
+    encoderY = pcy.GetPosition();
+    encoderX = pcx.GetPosition();
+    std::cout << encoderY << std::endl;
+    std::cout << encoderX << std::endl;
 
     //MaxRange
     float maxRange = 0.3;

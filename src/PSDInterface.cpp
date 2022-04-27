@@ -14,6 +14,28 @@
 
 void PSDInterface::setup_ADC()
 {
+
+  // Load offsets
+  std::ifstream fin;
+  fin.open("config.txt", std::ios::in);
+  if(!fin){
+    std::cout << "Error opening configuration file in PSDInterface setup!" << std::endl;
+    exit(1);
+  }
+  std::string config;
+  std::getline(fin, config); // Skip header
+  std::getline(fin,config,',');
+  PSD_y_offset = std::stod(config);
+  std::getline(fin,config,',');
+  PSD_x_offset = std::stod(config);
+  std::getline(fin,config,',');
+  PSD_sum_y_offset = std::stod(config);
+  std::getline(fin,config,',');
+  PSD_sum_x_offset = std::stod(config);
+  fin.close();
+
+  std::cout << PSD_y_offset << std::endl;
+  
   I2CFile0 = open(I2C_BUS, O_RDWR); // Open the I2C device
   if (I2CFile0 < 0)
   {
@@ -98,9 +120,9 @@ void PSDInterface::start_dark_count(size_t seconds)
   {
     std::getline(fin, config, ',');
   }
-  double piezo_x_offset = std::stod(config);
+  size_t piezo_x_offset = std::stoi(config);
   std::getline(fin, config, ',');
-  double piezo_y_offset = std::stod(config);
+  size_t piezo_y_offset = std::stoi(config);
   fin.close();
 
   double PSD_y_offset, PSD_x_offset, PSD_sum_y_offset, PSD_sum_x_offset = 0;

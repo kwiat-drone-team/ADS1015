@@ -5,6 +5,7 @@
 #include <chrono>
 #include <thread>
 #include <tuple>
+#include <fstream>
 
 constexpr size_t ADD180 = 16384;
 
@@ -12,6 +13,25 @@ int encoderY;
 int encoderX;
 int PSDCounter;
 int psdCalFlag;
+
+void PiezoControl::read_piezo_offset(){
+    std::ifstream fin;
+    fin.open("config.txt", std::ios::in);
+    if(!fin){
+        std::cout << "Error opening configuration file in Piezo setup!" << std::endl;
+        exit(1);
+    }
+    std::string config;
+    std::getline(fin, config); // Skip header
+    for (int i = 0; i < 5; i++)
+    {
+        std::getline(fin, config, ',');
+    }
+    X_offset = std::stoi(config);
+    std::getline(fin, config, ',');
+    Y_offset = std::stoi(config);
+    fin.close();
+}
 
 void PiezoControl::start_dark_count()
 {

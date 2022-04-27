@@ -1,0 +1,2 @@
+PSD_y_offset, PSD_x_offset, PSD_sum_y_offset, PSD_sum_x_offset, Piezo_X_offset, Piezo_Y_offset
+-0.026176,-0.0169814,0.514895,0.00386903,1,1

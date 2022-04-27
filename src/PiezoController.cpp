@@ -5,22 +5,18 @@
 
 PiezoController::PiezoController(const char* device, unsigned baudrate) {
     int ret = ser.openDevice(device, baudrate);
-	printf("port %s", device);
-	printf("baudrate %u\n", baudrate);
     // Open serial link at 115200 bauds
     if (ret != 1) {
         printf ("Error while opening port. Permission problem ?\n");
         exit(1);
     }
     
-    printf ("Serial port opened successfully !\n");
+    // printf ("Serial port opened successfully !\n");
     
     if (ret != 1) {   
         printf ("Error while opening port. Permission problem ?\n");
         exit(1);
     }
-	// printf ("Serial port opened successfully !\n");
-	//ser.writeString("C33H1024c;Y13=15;Y3=-100000;Y4=100000;Y7=1000;Y33=0;"); Original
 	ser.writeString("C31H50c;Y13=15;Y3=-100000;Y4=100000");
 	char response[1024];
 	int status = ser.readString(response, '>', 1024, 30);
@@ -55,8 +51,6 @@ int PiezoController::GetPosition() {
 		printf("There was an issue when reading from serial: %d\n", status);
 		exit(1);
 	}
-	//std::cout << response << std::endl;
-	//std::cout << status << std::endl;
 	char* pos = response+1;
 	return std::atoi(pos);
 }

@@ -1,11 +1,10 @@
 #pragma once
 #include "PiezoController.h"
 #include "PSDInterface.hpp"
-// TODO: change these
-#define SER1_PORT "/dev/ttyUSB1" 
-#define SER2_PORT "/dev/ttyUSB0"
+static const char* SER1_PORT = "/dev/ttyUSB1";
+static const char* SER2_PORT = "/dev/ttyUSB0";
 
-#define BAUD_RATE 57600
+constexpr size_t BAUD_RATE = 57600;
 
 class PiezoControl {
     public:
@@ -15,7 +14,10 @@ class PiezoControl {
             psd = interface;
         }
         void start_piezo_control(void);
-        
+        void start_dark_count(void);
+        void end_dark_count(void);
     private:
         PSDInterface* psd;
+        int X_offset = 23200;
+        int Y_offset = 14650;
 };

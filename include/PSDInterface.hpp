@@ -14,8 +14,8 @@ constexpr size_t ADC_RESOLUTION = 32767;
 class PSDInterface
 {
 public:
-  double PSD_x, PSD_y, PSD_sum_x, PSD_sum_y;
-  double normX, normY;
+  double PSD_x, PSD_y, PSD_sum_x, PSD_sum_y =0;
+  double normX, normY=0;
   PSDInterface()
   {
     setup_ADC();

@@ -219,6 +219,7 @@ void PSDInterface::start_PSD_loop()
     normY = PSD_y / PSD_sum_y;
     normX = (PSD_x / PSD_sum_x) * -1;
     PSD_val_mtx.unlock();
+
     float time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - begin).count();
 
     if (save_to_file)

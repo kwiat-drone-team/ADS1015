@@ -30,12 +30,11 @@ PiezoController::PiezoController(const char* device, unsigned baudrate) {
 
 void PiezoController::Step(int steps) {
     std::string stepCommand = std::to_string(steps);
-    if(steps > 0) {
-        //stepCommand = "+" + stepCommand; Original
-		stepCommand = "J" + stepCommand;
-    }
+	stepCommand = "J" + stepCommand;
     stepCommand += ";";
     ser.writeString(stepCommand.c_str());
+
+	std::cout << "Raw Step Command = " << stepCommand << std::endl;
 }
 
 void PiezoController::MoveTo(int position) {

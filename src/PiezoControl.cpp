@@ -90,8 +90,8 @@ void PiezoControl::start_piezo_control()
     //     std::this_thread::sleep_for(std::chrono::seconds(1));
     // }
 
-    float KpX = 2000; // Proportional gain constant in x direction 3000 works well
-    float KpY = 700; // Proportional gain constant in y direction 1000 works well
+    float KpX = 2000; // Proportional gain constant in x direction 2000 works well
+    float KpY = 700; // Proportional gain constant in y direction 700 works well
     float PSD_CENTER_X = 0;
     float PSD_CENTER_Y = 0;
 
@@ -160,9 +160,9 @@ void PiezoControl::start_piezo_control()
 
             // Take Action
             pcx.Step(errorX);
-            //std::cout << errorX << std::endl;
             pcy.Step(errorY);
 
+            // Approximate the delay of PSD
             usleep(1600);
         }
     

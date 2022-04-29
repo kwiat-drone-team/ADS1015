@@ -10,6 +10,7 @@
 #include <chrono>
 #include <thread>
 #include <mutex>
+#include <condition_variable>
 #include "PSDInterface.hpp"
 
 void PSDInterface::setup_ADC()
@@ -173,44 +174,35 @@ void PSDInterface::start_dark_count(size_t seconds)
 
 void PSDInterface::start_PSD_loop()
 {
-
-  double volts0;
-  double volts1;
-  double volts2;
-  double volts3;
-
   int16_t val0; // Stores the 16 bit value of our ADC conversion
   int16_t val1; // Stores the 16 bit value of our ADC conversion
   int16_t val2; // Stores the 16 bit value of our ADC conversion
   int16_t val3; // Stores the 16 bit value of our ADC conversion
 
-  std::ofstream fp;
-  if (save_to_file)
-  {
-    fp.open("volts.txt", std::ios::out | std::ios::trunc);
-    fp << "index,volts0,volts1,volts2,volts3,PSD_x,PSD_y,PSD_sum_x,PSD_sum_y,normX,normY,time" << std::endl;
-  }
-
   auto begin = std::chrono::high_resolution_clock::now();
   size_t iteration = 0;
+
+  std::ofstream fp;
+  fp.open("PSDlog.txt", std::ios::out | std::ios::trunc);
+  fp << "index,volts0,volts1,volts2,volts3,PSD_x,PSD_y,PSD_sum_x,PSD_sum_y,normX,normY,errorX,errorY,time" << std::endl;
+
   while (true)
   {
     read(I2CFile0, readBuf0, 2); // Read the contents of the conversion register into readBuf
     read(I2CFile1, readBuf1, 2); // Read the contents of the conversion register into readBuf
     read(I2CFile2, readBuf2, 2); // Read the contents of the conversion register into readBuf
     read(I2CFile3, readBuf3, 2); // Read the contents of the conversion register into readBuf
-
     val0 = readBuf0[0] << 8 | readBuf0[1]; // Combine the two bytes of readBuf into a single 16 bit result
     val1 = readBuf1[0] << 8 | readBuf1[1]; // Combine the two bytes of readBuf into a single 16 bit result
     val2 = readBuf2[0] << 8 | readBuf2[1]; // Combine the two bytes of readBuf into a single 16 bit result
     val3 = readBuf3[0] << 8 | readBuf3[1]; // Combine the two bytes of readBuf into a single 16 bit result
 
+    PSD_val_mtx.lock();
     volts0 = (float)val0 * gain_voltage / 32767.0;
     volts1 = (float)val1 * gain_voltage / 32767.0;
     volts2 = (float)val2 * gain_voltage / 32767.0;
     volts3 = (float)val3 * gain_voltage / 32767.0;
 
-    PSD_val_mtx.lock();
     PSD_y = volts0 - PSD_y_offset;
     PSD_x = volts1 - PSD_x_offset;
     PSD_sum_y = volts2 - PSD_sum_y_offset;
@@ -220,23 +212,24 @@ void PSDInterface::start_PSD_loop()
     normX = (PSD_x / PSD_sum_x) * -1;
     PSD_val_mtx.unlock();
 
+    // Signal that there is fresh data
+    // std::unique_lock<std::mutex> lock(PSD_new_data_mtx);
+    // PSD_new_data = true;
+    // PSD_new_data_cv.notify_all();
+    // lock.unlock();
+    PSD_new_data_mtx.lock();
+    PSD_new_data = true;
+    PSD_new_data_mtx.unlock();
+
     float time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - begin).count();
 
-    if (save_to_file)
-    {
-      fp << iteration << ",";
-      fp << volts0 << "," << volts1 << "," << volts2 << "," << volts3 << ",";
-      fp << PSD_x << "," << PSD_y << "," << PSD_sum_x << "," << PSD_sum_y << ",";
-      fp << normX << "," << normY << ",";
-      fp << time << std::endl;
-    }
-
+    fp << iteration << ",";
+    fp << volts0 << "," << volts1 << "," << volts2 << "," << volts3 << ",";
+    fp << PSD_x << "," << PSD_y << "," << PSD_sum_x << "," << PSD_sum_y << ",";
+    fp << normX << "," << normY << ",";
+    fp << 0 << "," << 0 << ",";
+    fp << time << std::endl;
     iteration++;
     usleep(sleep_microseconds);
-  }
-
-  if (save_to_file)
-  {
-    fp.close();
   }
 }

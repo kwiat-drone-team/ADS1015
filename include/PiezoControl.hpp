@@ -5,6 +5,7 @@ static const char *SER1_PORT = "/dev/ttyUSB1";
 static const char *SER2_PORT = "/dev/ttyUSB0";
 
 constexpr size_t BAUD_RATE = 57600;
+constexpr float signal_threshold = 0.02;
 
 class PiezoControl
 {

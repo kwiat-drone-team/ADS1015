@@ -1,5 +1,6 @@
 #pragma once
 #include <mutex>
+#include <condition_variable>
 #include <string>
 
 static const char *I2C_BUS = "/dev/i2c-1";
@@ -15,7 +16,11 @@ class PSDInterface
 {
 public:
   double PSD_x, PSD_y, PSD_sum_x, PSD_sum_y =0;
+  double volts0, volts1, volts2, volts3 = 0;
   double normX, normY=0;
+  std::mutex PSD_new_data_mtx;
+  std::condition_variable PSD_new_data_cv;
+  bool PSD_new_data;
   PSDInterface()
   {
     setup_ADC();

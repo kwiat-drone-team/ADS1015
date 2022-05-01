@@ -20,7 +20,7 @@ PiezoController::PiezoController(const char *device, unsigned baudrate)
 		printf("Error while opening port. Permission problem ?\n");
 		exit(1);
 	}
-	ser.writeString("C31H2600c;Y13=15;Y3=-100000;Y4=100000");
+	ser.writeString("C31H1000c;Y13=15;Y3=-100000;Y4=100000");
 	char response[1024];
 	int status = ser.readString(response, '>', 1024, 30);
 	status = ser.readString(response, '>', 1024, 30);

@@ -45,7 +45,7 @@ int main(int argc, char **argv)
 
                 switch(response){
                     case 'w':
-                        control->Y_offset += delta;
+                        control->Y_offset -= delta;
                         control->pcy.MoveTo(control->Y_offset);
                         break;
                     case 'a':
@@ -53,7 +53,7 @@ int main(int argc, char **argv)
                         control->pcx.MoveTo(control->X_offset);
                         break;
                     case 's':
-                        control->Y_offset -= delta;
+                        control->Y_offset += delta;
                         control->pcy.MoveTo(control->Y_offset);
                         break;
                     case 'd':

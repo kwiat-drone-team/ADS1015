@@ -185,7 +185,7 @@ void PiezoControl::start_piezo_control()
             errorY = int(round(normX*KpY)); // Error calculation. Currently just a proportional feedback.
 
             // Bound control signals to range [u_min,u_max]
-            int u_max = 15000;
+            int u_max = 1000;
 
             if (errorX > u_max)
             {

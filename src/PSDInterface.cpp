@@ -182,9 +182,9 @@ void PSDInterface::start_PSD_loop()
   auto begin = std::chrono::high_resolution_clock::now();
   size_t iteration = 0;
 
-  std::ofstream fp;
-  fp.open("PSDlog.txt", std::ios::out | std::ios::trunc);
-  fp << "index,volts0,volts1,volts2,volts3,PSD_x,PSD_y,PSD_sum_x,PSD_sum_y,normX,normY,errorX,errorY,time" << std::endl;
+  // std::ofstream fp;
+  // fp.open("PSDlog.txt", std::ios::out | std::ios::trunc);
+  // fp << "index,volts0,volts1,volts2,volts3,PSD_x,PSD_y,PSD_sum_x,PSD_sum_y,normX,normY,errorX,errorY,time" << std::endl;
 
   while (true)
   {
@@ -223,12 +223,12 @@ void PSDInterface::start_PSD_loop()
 
     float time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - begin).count();
 
-    fp << iteration << ",";
-    fp << volts0 << "," << volts1 << "," << volts2 << "," << volts3 << ",";
-    fp << PSD_x << "," << PSD_y << "," << PSD_sum_x << "," << PSD_sum_y << ",";
-    fp << normX << "," << normY << ",";
-    fp << 0 << "," << 0 << ",";
-    fp << time << std::endl;
+    // fp << iteration << ",";
+    // fp << volts0 << "," << volts1 << "," << volts2 << "," << volts3 << ",";
+    // fp << PSD_x << "," << PSD_y << "," << PSD_sum_x << "," << PSD_sum_y << ",";
+    // fp << normX << "," << normY << ",";
+    // fp << 0 << "," << 0 << ",";
+    // fp << time << std::endl;
     iteration++;
     usleep(sleep_microseconds);
   }

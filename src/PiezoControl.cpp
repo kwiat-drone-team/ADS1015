@@ -113,8 +113,8 @@ void PiezoControl::start_piezo_control()
     fp.open("volts.txt", std::ios::out | std::ios::trunc);
     fp << "index,volts0,volts1,volts2,volts3,PSD_x,PSD_y,PSD_sum_x,PSD_sum_y,normX,normY,errorX,errorY,time" << std::endl;
 
-    float KpX = 3000; // Proportional gain constant in x direction 2000 works well
-    float KpY = 3000; // Proportional gain constant in y direction 700 works well
+    float KpX = 1000; // Proportional gain constant in x direction 2000 works well
+    float KpY = 1000; // Proportional gain constant in y direction 700 works well
     float PSD_CENTER_X = 0;
     float PSD_CENTER_Y = 0;
 
@@ -180,7 +180,9 @@ void PiezoControl::start_piezo_control()
             //std::cout << normX << ", " << normY << std::endl;
 
             errorX = int(round(normY*KpX));      // Error calculation. Currently just a proportional feedback.
-            errorY = int(round(-1*normX*KpY)); // Error calculation. Currently just a proportional feedback.
+            //errorY = int(round(-1*normX*KpY)); // Error calculation. Currently just a proportional feedback.
+            // New Bench
+            errorY = int(round(normX*KpY)); // Error calculation. Currently just a proportional feedback.
 
             // Bound control signals to range [u_min,u_max]
             int u_max = 15000;
@@ -210,7 +212,7 @@ void PiezoControl::start_piezo_control()
 
             // Approximate the delay of PSD
             //usleep(1600);
-            usleep(1000);
+            usleep(1600);
         }
 
         float time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - begin).count();

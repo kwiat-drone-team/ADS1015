@@ -19,6 +19,7 @@ public:
     }
     void read_piezo_offset(void);
     void start_piezo_control(void);
+    void write_piezo_offset(int, int);
     void start_dark_count(void);
     void end_dark_count(void);
 

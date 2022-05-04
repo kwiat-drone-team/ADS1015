@@ -4,6 +4,7 @@
 #include <linux/i2c-dev.h> // I2C bus definitions
 #include <sys/ioctl.h>
 #include <iostream>
+#include <cmath>
 #include <fstream>
 #include <unistd.h>
 #include <stdlib.h>
@@ -12,6 +13,8 @@
 #include <mutex>
 #include <condition_variable>
 #include "PSDInterface.hpp"
+
+#define ROUND_PRECISION 1e30
 
 void PSDInterface::setup_ADC()
 {
@@ -163,10 +166,10 @@ void PSDInterface::start_dark_count(size_t seconds)
   std::ofstream fout;
   fout.open("config.txt", std::ios::out | std::ios::trunc);
   fout << "PSD_y_offset, PSD_x_offset, PSD_sum_y_offset, PSD_sum_x_offset, Piezo_X_offset, Piezo_Y_offset" << std::endl;
-  fout << PSD_y_offset / num_iterations << ",";
-  fout << PSD_x_offset / num_iterations << ",";
-  fout << PSD_sum_y_offset / num_iterations << ",";
-  fout << PSD_sum_x_offset / num_iterations << ",";
+  fout << std::floor((PSD_y_offset / num_iterations*ROUND_PRECISION))/ROUND_PRECISION << ",";
+  fout << std::floor((PSD_x_offset / num_iterations*ROUND_PRECISION))/ROUND_PRECISION << ",";
+  fout << std::floor((PSD_sum_y_offset / num_iterations)*ROUND_PRECISION)/ROUND_PRECISION << ",";
+  fout << std::floor((PSD_sum_x_offset / num_iterations)*ROUND_PRECISION)/ROUND_PRECISION << ",";
   fout << piezo_x_offset << ",";
   fout << piezo_y_offset << std::endl;
   fout.close();

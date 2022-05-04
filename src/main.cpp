@@ -23,6 +23,7 @@ int main(int argc, char **argv)
             piezo_end_dark.join();
             return 0;
         }
+
         if (strcmp(argv[i], "-h") == 0)
         {
             std::cout << "Command line help:" << std::endl;

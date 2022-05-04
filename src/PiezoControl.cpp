@@ -36,6 +36,36 @@ void PiezoControl::read_piezo_offset(){
     fin.close();
 }
 
+void PiezoControl::write_piezo_offset(int x_offset, int y_offset){
+    std::ifstream fin;
+    fin.open("config.txt", std::ios::in);
+    if(!fin){
+        std::cout << "Error opening configuration file in PSDInterface setup!" << std::endl;
+        exit(1);
+    }
+    std::string config;
+    std::getline(fin, config); // Skip header
+    std::getline(fin,config,',');
+    float PSD_y_offset = std::stod(config);
+    std::getline(fin,config,',');
+    float PSD_x_offset = std::stod(config);
+    std::getline(fin,config,',');
+    float PSD_sum_y_offset = std::stod(config);
+    std::getline(fin,config,',');
+    float PSD_sum_x_offset = std::stod(config);
+    fin.close();
+
+    std::ofstream fout;
+    fout.open("config.txt", std::ios::out | std::ios::trunc);
+    if(!fout){
+        std::cout << "Error opening configuration file in PSDInterface setup!" << std::endl;
+        exit(1);
+    }
+    fout << "PSD_y_offset, PSD_x_offset, PSD_sum_y_offset, PSD_sum_x_offset, Piezo_X_offset, Piezo_Y_offset" << std::endl;
+    fout << PSD_y_offset << "," << PSD_x_offset << "," << PSD_sum_y_offset << "," << PSD_sum_x_offset << "," << x_offset << "," << y_offset << std::endl;
+    fout.close();
+}
+
 void PiezoControl::start_dark_count()
 {
     pcy.MoveTo(Y_offset + ADD180);

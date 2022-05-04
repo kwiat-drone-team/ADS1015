@@ -1,6 +1,7 @@
 #include "PiezoControl.hpp"
 #include "PSDInterface.hpp"
 #include <thread>
+#include <string>
 
 int main(int argc, char **argv)
 {
@@ -23,13 +24,67 @@ int main(int argc, char **argv)
             piezo_end_dark.join();
             return 0;
         }
+        if (strcmp(argv[i], "-o") == 0)
+        {
+            PSDInterface *psd = new PSDInterface();
+            std::thread psd_record(&PSDInterface::start_PSD_loop, psd);
+            PiezoControl *control = new PiezoControl(psd);
+            std::thread piezo_start(&PiezoControl::start_piezo_control, control);
+    
+            std::cout << "Key Mapping: " << std::endl;
+            std::cout << "w = move up, a = move left" << std::endl;
+            std::cout << "s = move down, d = move right" << std::endl;
+            std::cout << "r = type new delta" << std::endl;
+            std::cout << "q = save values to config.txt and exit" << std::endl;
+            char response;
+            int delta = 50;
+            std::string new_delta;
+            while(1){
+                std::cout << "Offsets are: (X) " << control->X_offset << " (Y) " << control->Y_offset << std::endl;
+                std::cin >> response;
 
+                switch(response){
+                    case 'w':
+                        control->Y_offset += delta;
+                        control->pcy.MoveTo(control->Y_offset);
+                        break;
+                    case 'a':
+                        control->X_offset -= delta;
+                        control->pcx.MoveTo(control->X_offset);
+                        break;
+                    case 's':
+                        control->Y_offset -= delta;
+                        control->pcy.MoveTo(control->Y_offset);
+                        break;
+                    case 'd':
+                        control->X_offset += delta;
+                        control->pcx.MoveTo(control->X_offset);
+                        break;
+                    case 'r':
+                        std::cout << "Type in new delta value" << std::endl;
+                        std::cin >> new_delta;
+                        delta = std::stoi(new_delta);
+                        break;
+                    case 'q':
+                        control->write_piezo_offset(control->X_offset, control->Y_offset);
+                        std::cout << "X and Y offsets are written to config.txt" << std::endl;
+                        exit(1);
+                        break;
+                    default:
+                        continue;
+                }
+            }
+            piezo_start.join();
+            psd_record.join();
+            return 0;
+        }
         if (strcmp(argv[i], "-h") == 0)
         {
             std::cout << "Command line help:" << std::endl;
             std::cout << "_____________________________________________________________________" << std::endl;
             std::cout << "-h        Show this help menu." << std::endl;
             std::cout << "-d    	Perform dark count measurement." << std::endl;
+            std::cout << "-o    	Update Piezo Offsets." << std::endl;
             exit(1);
         }
     }

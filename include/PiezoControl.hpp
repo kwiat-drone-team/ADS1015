@@ -12,6 +12,7 @@ class PiezoControl
 public:
     PiezoController pcy;
     PiezoController pcx;
+    size_t X_offset, Y_offset;
     PiezoControl(PSDInterface *interface) : pcy(SER1_PORT, BAUD_RATE), pcx(SER2_PORT, BAUD_RATE)
     {
         psd = interface;
@@ -25,5 +26,4 @@ public:
 
 private:
     PSDInterface *psd;
-    size_t X_offset, Y_offset;
 };

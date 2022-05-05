@@ -37,7 +37,8 @@ int main(int argc, char **argv)
                 normX = psd->normX;
                 normY = psd->normY;
                 psd->PSD_val_mtx.unlock();
-                std::cout << "normX: " <<  normX  << "normY: " << normY << std::endl;
+                std::printf("normX: %.3f normY: %.3f     \r", normX, normY);
+                // std::cout << "normX: " <<  normX  << " normY: " << normY << "\r";
             }
         }
         if (strcmp(argv[i], "-o") == 0)

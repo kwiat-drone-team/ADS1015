@@ -9,7 +9,7 @@
 #include <cmath>
 
 constexpr size_t ADD180 = 16384;
-
+constexpr size_t NUM_SAMPLES_LOST = 10;
 int encoderY;
 int encoderX;
 int PSDCounter;
@@ -143,8 +143,8 @@ void PiezoControl::start_piezo_control()
     fp.open("volts.txt", std::ios::out | std::ios::trunc);
     fp << "index,volts0,volts1,volts2,volts3,PSD_x,PSD_y,PSD_sum_x,PSD_sum_y,normX,normY,errorX,errorY,time" << std::endl;
 
-    float KpX = 1000; // Proportional gain constant in x direction 2000 works well
-    float KpY = 1000; // Proportional gain constant in y direction 700 works well
+    float KpX = 500; // Proportional gain constant in x direction 2000 works well
+    float KpY = 500; // Proportional gain constant in y direction 700 works well
     // float KpX = 500; // Proportional gain constant in x direction 2000 works well
     // float KpY = 500; // Proportional gain constant in x direction 2000 works well
 
@@ -164,6 +164,7 @@ void PiezoControl::start_piezo_control()
     size_t iteration = 0;
     // std::unique_lock<std::mutex> lck(psd->PSD_new_data_mtx);
     auto begin = std::chrono::high_resolution_clock::now();
+    size_t lost_counter = 0;
 
     while (true)
     {
@@ -246,6 +247,14 @@ void PiezoControl::start_piezo_control()
             // Approximate the delay of PSD
             //usleep(1600);
             usleep(2000);
+        }
+        else {
+            lost_counter++;
+
+            if(lost_counter >= NUM_SAMPLES_LOST){
+                pcx.MoveTo(X_offset);
+                pcy.MoveTo(Y_offset);
+            }
         }
 
         float time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - begin).count();

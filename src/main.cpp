@@ -29,7 +29,7 @@ int main(int argc, char **argv)
             PSDInterface *psd = new PSDInterface();
             std::thread psd_record(&PSDInterface::start_PSD_loop, psd);
             PiezoControl *control = new PiezoControl(psd);
-            std::thread piezo_start(&PiezoControl::start_piezo_control, control);
+            // std::thread piezo_start(&PiezoControl::start_piezo_control, control);
     
             std::cout << "Key Mapping: " << std::endl;
             std::cout << "w = move up, a = move left" << std::endl;
@@ -74,7 +74,7 @@ int main(int argc, char **argv)
                         continue;
                 }
             }
-            piezo_start.join();
+            // piezo_start.join();
             psd_record.join();
             return 0;
         }

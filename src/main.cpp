@@ -24,6 +24,22 @@ int main(int argc, char **argv)
             piezo_end_dark.join();
             return 0;
         }
+        if (strcmp(argv[i], "-a") == 0){
+            PSDInterface *psd = new PSDInterface();
+            std::thread psd_record(&PSDInterface::start_PSD_loop, psd);
+            PiezoControl *control = new PiezoControl(psd);
+            control->pcx.MoveTo(control->X_offset);
+            control->pcy.MoveTo(control->Y_offset);
+            float normX;
+            float normY;
+            while(1){
+                psd->PSD_val_mtx.lock();
+                normX = psd->normX;
+                normY = psd->normY;
+                psd->PSD_val_mtx.unlock();
+                std::cout << "normX: " <<  normX  << "normY: " << normY << std::endl;
+            }
+        }
         if (strcmp(argv[i], "-o") == 0)
         {
             PSDInterface *psd = new PSDInterface();
@@ -82,9 +98,10 @@ int main(int argc, char **argv)
         {
             std::cout << "Command line help:" << std::endl;
             std::cout << "_____________________________________________________________________" << std::endl;
-            std::cout << "-h        Show this help menu." << std::endl;
-            std::cout << "-d    	Perform dark count measurement." << std::endl;
-            std::cout << "-o    	Update Piezo Offsets." << std::endl;
+            std::cout << "-h        Show this help menu."                                       << std::endl;
+            std::cout << "-d    	Perform dark count measurement."                            << std::endl;
+            std::cout << "-o    	Update Piezo Offsets."                                      << std::endl;
+            std::cout << "-a    	Adjust pan/tilt on mirrors (PSD output with no control)."   << std::endl;
             exit(1);
         }
     }

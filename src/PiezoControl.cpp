@@ -145,6 +145,9 @@ void PiezoControl::start_piezo_control()
 
     float KpX = 1000; // Proportional gain constant in x direction 2000 works well
     float KpY = 1000; // Proportional gain constant in y direction 700 works well
+    // float KpX = 500; // Proportional gain constant in x direction 2000 works well
+    // float KpY = 500; // Proportional gain constant in x direction 2000 works well
+
     float PSD_CENTER_X = 0;
     float PSD_CENTER_Y = 0;
 
@@ -242,7 +245,7 @@ void PiezoControl::start_piezo_control()
 
             // Approximate the delay of PSD
             //usleep(1600);
-            usleep(1600);
+            usleep(2000);
         }
 
         float time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - begin).count();

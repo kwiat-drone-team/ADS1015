@@ -10,10 +10,24 @@
 
 constexpr size_t ADD180 = 16384;
 constexpr size_t NUM_SAMPLES_LOST = 10;
+constexpr size_t min_pcx_rx = 1819;
+constexpr size_t max_pcx_rx = 1825;
+constexpr size_t max_pcy_rx = 14847;
+constexpr size_t min_pcy_rx = 14841;
+
+constexpr size_t min_pcx_tx = 31494;
+constexpr size_t max_pcx_tx = 31504;
+constexpr size_t max_pcy_tx = 9608;
+constexpr size_t min_pcy_tx = 9595;
 int encoderY;
 int encoderX;
 int PSDCounter;
 int psdCalFlag;
+
+// constexpr float norm_thresh = 0.25;
+
+constexpr bool tx = false;
+
 
 void PiezoControl::read_piezo_offset(){
     std::ifstream fin;
@@ -165,6 +179,26 @@ void PiezoControl::start_piezo_control()
     // std::unique_lock<std::mutex> lck(psd->PSD_new_data_mtx);
     auto begin = std::chrono::high_resolution_clock::now();
     size_t lost_counter = 0;
+    size_t read_counter = 0;
+
+    psd->PSD_val_mtx.lock();
+    normX = psd->normX;
+    normY = psd->normY;
+    psd->PSD_val_mtx.unlock();
+
+
+    // int x_setpoint = normX/2;
+    // int y_setpoint = normY/2;
+    // size_t setpoint_counter = 0;
+
+    // float final_setpoint_x = 0.02;
+    // float final_setpoint_y = 0.018;
+    float final_setpoint_x_tx = 0;
+    float final_setpoint_y_tx = 0;
+    float final_setpoint_x_rx = 0;
+    float final_setpoint_y_rx = 0;
+
+    // size_t period = 0;
 
     while (true)
     {
@@ -205,19 +239,35 @@ void PiezoControl::start_piezo_control()
         normX = psd->normX;
         normY = psd->normY;
         psd->PSD_val_mtx.unlock();
+        // setpoint_counter +=1;
+        // if(setpoint_counter== 100){
+        //     x_setpoint = normX/2;
+        //     y_setpoint = normY/2;
+        //     setpoint_counter =0;
+        // }
+        // period++;
 
-        
+        // read_counter+=1;
 
         // Check if we have a valid signal
         if((PSD_sum_y > signal_threshold) && (-1*PSD_sum_x > signal_threshold)){
 
             //std::cout << normX << ", " << normY << std::endl;
+            // errorX = int(round((normY)*KpX));      // Error calculation. Currently just a proportional feedback.
+            // errorY = int(round((normX)*KpY));      // Error calculation. Currently just a proportional feedback.
+            
+            //errorX = int(round((normY-y_setpoint)*KpX));      // Error calculation. Currently just a proportional feedback.
+            // //errorY = int(round(-1*normX*KpY)); // Error calculation. Currently just a proportional feedback.
+            // // New Bench
+            //errorY = int(round((normX-x_setpoint)*KpY)); // Error calculation. Currently just a proportional feedback.
 
-            errorX = int(round(normY*KpX));      // Error calculation. Currently just a proportional feedback.
-            //errorY = int(round(-1*normX*KpY)); // Error calculation. Currently just a proportional feedback.
-            // New Bench
-            errorY = int(round(normX*KpY)); // Error calculation. Currently just a proportional feedback.
-
+            if(tx){
+                errorY = int(round((normX-final_setpoint_x_tx)*KpY)); // Error calculation. Currently just a proportional feedback.
+                errorX = int(round((normY-final_setpoint_y_tx)*KpX)); // Error calculation. Currently just a proportional feedback.
+            } else{
+                errorY = int(round((normX-final_setpoint_x_rx)*KpY)); // Error calculation. Currently just a proportional feedback.
+                errorX = int(round((normY-final_setpoint_y_rx)*KpX)); // Error calculation. Currently just a proportional feedback.
+            }
             // Bound control signals to range [u_min,u_max]
             int u_max = 1000;
 
@@ -238,15 +288,51 @@ void PiezoControl::start_piezo_control()
                 errorY = -1*u_max;
             }
 
-            // Take Action
+
+            // if(read_counter % 200 == 0){
+            // int pcx_nextPos = pcx.GetPosition();
+            // int pcy_nextPos = pcy.GetPosition();
+            // pcx_nextPos += errorX;
+            // pcy_nextPos += errorY;
+
+            // if(pcx_nextPos <= max_pcx_tx && pcx_nextPos >= min_pcx_tx){
+            // if(normX > 0.4 || normX < -0.4){
+            // pcx.Step(errorX);
+            // }
+            // }
+
+            // if(pcy_nextPos <= max_pcy_tx && pcy_nextPos >= min_pcy_tx){
+            // if(normY > 0.4 || normY < -0.4){
+            // pcy.Step(errorY);
+            // }
+            // }
+            // read_counter = 1;
+            // }
+            // else{
+            //     pcx.Step(errorX);
+            //     pcy.Step(errorY);
+            // }
+
+            // if(normX > norm_thresh || normX < -1 * norm_thresh){
+            // if(period == 100){
             pcx.Step(errorX);
             pcy.Step(errorY);
+                // period = 0;
+            // }
+            // }
+            // }
+
+            // if(pcy_nextPos <= max_pcy_tx && pcy_nextPos >= min_pcy_tx){
+            // if(normY > norm_thresh || normY < -1 * norm_thresh){
+            // }
+            
+            // Take Action
 
             // std::cout << errorX << std::endl;
 
             // Approximate the delay of PSD
-            //usleep(1600);
-            usleep(2000);
+            usleep(1600);
+            // usleep(2000);
         }
         else {
             lost_counter++;
@@ -254,6 +340,7 @@ void PiezoControl::start_piezo_control()
             if(lost_counter >= NUM_SAMPLES_LOST){
                 pcx.MoveTo(X_offset);
                 pcy.MoveTo(Y_offset);
+                usleep(50000);
             }
         }
 
